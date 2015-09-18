@@ -1,5 +1,5 @@
 /*!
- * This file is part of Cytoscape.js 2.4.8.
+ * This file is part of Cytoscape.js 2.5.0-kompiro.
  *
  * Cytoscape.js is free software: you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by the Free
@@ -28,7 +28,7 @@ var cytoscape;
     return cytoscape.init.apply(cytoscape, arguments);
   };
 
-  $$.version = '2.4.8';
+  $$.version = '2.5.0-kompiro';
 
   // allow functional access to cytoscape.js
   // e.g. var cyto = $.cytoscape({ selector: "#foo", ... });
@@ -4980,7 +4980,7 @@ this.cytoscape = cytoscape;
       textBackgroundShape: { enums: ['rectangle', 'roundrectangle']},
       nodeShape: { enums: ['rectangle', 'roundrectangle', 'ellipse', 'triangle', 'square', 'pentagon', 'hexagon', 'heptagon', 'octagon', 'star', 'diamond', 'vee', 'rhomboid'] },
       compoundIncludeLabels: { enums: ['include', 'exclude'] },
-      arrowShape: { enums: ['tee', 'triangle', 'triangle-tee', 'triangle-backcurve', 'half-triangle-overshot', 'square', 'circle', 'diamond', 'none'] },
+      arrowShape: { enums: ['tee', 'open-arrowhead', 'triangle', 'triangle-tee', 'triangle-backcurve', 'half-triangle-overshot', 'square', 'circle', 'diamond', 'none'] },
       arrowFill: { enums: ['filled', 'hollow'] },
       display: { enums: ['element', 'none'] },
       visibility: { enums: ['hidden', 'visible'] },
@@ -15721,6 +15721,48 @@ this.cytoscape = cytoscape;
   };
 
   arrowShapes['triangle'] = arrowShapes['arrow'];
+
+  arrowShapes['open-arrowhead'] = {
+    _points: [
+      -0.15, -0.3,
+      0, 0,
+      0.15, -0.3,
+      0, 0,
+      0, -0.3
+    ],
+
+    leavePathOpen: true,
+
+    collide: function(x, y, centerX, centerY, width, height, direction, padding) {
+      var points = arrowShapes['open-arrowhead']._points;
+
+//      console.log("collide(): " + direction);
+
+      return $$.math.pointInsidePolygon(
+        x, y, points, centerX, centerY, width, height, direction, padding);
+    },
+
+    roughCollide: bbCollide,
+
+    draw: function(context, size, angle, translation) {
+      var points = arrowShapes['open-arrowhead']._points;
+
+      for (var i = 0; i < points.length / 2; i++) {
+        var pt = transform( points[i * 2], points[i * 2 + 1], size, angle, translation );
+
+        context.lineTo(pt.x, pt.y);
+      }
+
+    },
+
+    spacing: function(edge) {
+      return 0;
+    },
+
+    gap: function(edge) {
+      return edge._private.style['width'].pxValue * 2;
+    }
+  };
 
   arrowShapes['triangle-backcurve'] = {
     _ctrlPt: [ 0, -0.15 ],
